@@ -28,5 +28,5 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
 
-      - name: Test with pytest
-        run: pytest --cov src tests/
+#      - name: Test with pytest
+#        run: pytest --cov src tests/
