@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+
 class ConsoleUI:
     """
     Gestisce l'interazione con l'utente (Input/Output).
@@ -21,12 +22,12 @@ class ConsoleUI:
             try:
                 inp = input("Il tuo turno (X). Inserisci riga e colonna (0-2): ")
                 # Gestisce input tipo "1 1" oppure "1,1"
-                parts = inp.replace(',', ' ').split()
-                
+                parts = inp.replace(",", " ").split()
+
                 if len(parts) != 2:
                     print("Devi inserire due numeri separati da spazio.")
                     continue
-                    
+
                 r, c = map(int, parts)
                 return r, c
             except ValueError:
