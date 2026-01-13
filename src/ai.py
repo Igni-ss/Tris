@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 from src.board import Board, PLAYER_O, PLAYER_X, EMPTY
 
 
-def minimax(board: Board, depth: int, is_maximizing: bool) -> int:
+def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
     """
     Algoritmo Minimax ricorsivo.
 

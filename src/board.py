@@ -1,7 +1,5 @@
 from typing import List, Optional, Tuple
 
-Board = List[List[str]]
-
 PLAYER_X = "X"
 PLAYER_O = "O"
 EMPTY = " "
