@@ -1,7 +1,9 @@
 """Punto di ingresso (Entry point) dell'applicazione Tris."""
+
 import sys
-from src.board import Board, PLAYER_X, PLAYER_O
+
 from src.ai import get_best_move
+from src.board import PLAYER_O, PLAYER_X, Board
 from src.ui import ConsoleUI
 
 

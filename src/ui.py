@@ -1,7 +1,9 @@
 """
 Modulo per l'interfaccia utente da console.
 """
+
 from typing import List, Tuple
+
 
 class ConsoleUI:
     """

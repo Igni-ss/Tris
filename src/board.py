@@ -1,4 +1,5 @@
 """Modulo che gestisce la logica della scacchiera e le regole del gioco."""
+
 from typing import List, Optional, Tuple
 
 PLAYER_X = "X"

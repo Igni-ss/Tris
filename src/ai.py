@@ -1,11 +1,12 @@
 """
 Modulo per la gestione dell'Intelligenza Artificiale (Minimax).
 """
+
 import math
 from typing import Tuple
 
 # Rimosso Optional che non era usato
-from src.board import Board, EMPTY, PLAYER_O, PLAYER_X
+from src.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
 
 def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
