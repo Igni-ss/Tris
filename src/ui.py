@@ -1,5 +1,7 @@
+"""
+Modulo per l'interfaccia utente da console.
+"""
 from typing import List, Tuple
-
 
 class ConsoleUI:
     """
@@ -34,7 +36,9 @@ class ConsoleUI:
                 print("Input non valido. Inserisci numeri interi (es: 1 1).")
 
     def show_message(self, msg: str) -> None:
+        """Mostra un messaggio informativo all'utente."""
         print(f"*** {msg} ***")
 
     def show_error(self, err: str) -> None:
+        """Mostra un messaggio di errore."""
         print(f"!!! {err} !!!")
