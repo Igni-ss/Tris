@@ -2,9 +2,9 @@
 
 import sys
 
-from src.ai import get_best_move
-from src.board import PLAYER_O, PLAYER_X, Board
-from src.ui import ConsoleUI
+from src.modules.ai import get_best_move
+from src.modules.board import PLAYER_O, PLAYER_X, Board
+from src.modules.ui import ConsoleUI
 
 
 def main():

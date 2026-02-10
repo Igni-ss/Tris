@@ -4,7 +4,7 @@ Modulo per la gestione dell'Intelligenza Artificiale (Minimax).
 
 import math
 from typing import Tuple
-from src.board import EMPTY, PLAYER_O, PLAYER_X, Board
+from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
 
 def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
