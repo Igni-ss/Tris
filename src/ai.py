@@ -4,8 +4,6 @@ Modulo per la gestione dell'Intelligenza Artificiale (Minimax).
 
 import math
 from typing import Tuple
-
-# Rimosso Optional che non era usato
 from src.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
 
@@ -32,7 +30,6 @@ def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
             best_score = max(score, best_score)
         return best_score
 
-    # RIMOSSO 'else' inutile: se l'if sopra fa return, qui ci arriviamo comunque.
     best_score = math.inf
     for r, c in board.get_available_moves():
         board.grid[r][c] = PLAYER_X
