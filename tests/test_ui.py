@@ -1,6 +1,6 @@
 """Modulo di test per l'interfaccia utente console."""
 
-from pytest_mock import MockerFixture
+from pytest_mock import MockerFixture  # type: ignore
 
 from src.modules.ui import ConsoleUI
 

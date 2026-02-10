@@ -1,6 +1,7 @@
 """Modulo di test per l'algoritmo Minimax dell'IA."""
 
-import pytest
+import pytest  # type: ignore
+
 from src.modules.ai import get_best_move
 from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
