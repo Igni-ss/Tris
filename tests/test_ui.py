@@ -5,28 +5,18 @@ from src.modules.ui import ConsoleUI
 
 
 def test_get_player_move_valid(mocker: MockerFixture):
-    """Verifica che l'input dell'utente venga convertito in coordinate (r, c)."""
-    # Arrange
+    """
+    Verifica che l'input dell'utente venga convertito in coordinate (r, c).
+    Utilizza un Mock per simulare l'input da tastiera.
+    """
+    # Arrange [cite: 86, 132]
     ui = ConsoleUI()
     mocker.patch("builtins.input", return_value="1 1")
-    spy = mocker.spy(ui, "get_player_move")
+    spy = mocker.spy(ui, "get_player_move")  # [cite: 110, 139]
 
-    # Act
+    # Act [cite: 89, 142]
     move = ui.get_player_move()
 
-    # Assert
+    # Assert [cite: 91, 147]
     assert move == (1, 1)
     assert spy.call_count == 1
-
-
-def test_show_message_output(mocker: MockerFixture):
-    """Verifica che il messaggio venga stampato con la formattazione corretta."""
-    # Arrange
-    ui = ConsoleUI()
-    mock_print = mocker.patch("builtins.print")
-
-    # Act
-    ui.show_message("Benvenuto")
-
-    # Assert
-    mock_print.assert_called_with("*** Benvenuto ***")

@@ -28,11 +28,16 @@ SCENARIOS = [
 
 @pytest.mark.parametrize("test_case", SCENARIOS)
 def test_ai_logic(test_case):
-    """Testa diverse situazioni di gioco per verificare l'ottimalità dell'IA."""
-    # Arrange
+    """
+    Testa diverse situazioni di gioco per verificare l'ottimalità dell'IA.
+    Segue il pattern Arrange-Act-Assert (AAA).
+    """
+    # Arrange [cite: 597, 599]
     board = Board()
     board.grid = test_case["grid"]
-    # Act
+
+    # Act [cite: 597, 600]
     move = get_best_move(board)
-    # Assert
+
+    # Assert [cite: 597, 601]
     assert move == test_case["expected"], f"Fallito: {test_case['name']}"
