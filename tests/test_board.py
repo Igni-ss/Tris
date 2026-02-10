@@ -3,7 +3,7 @@ Modulo di test per la classe Board.
 Controlla la logica di inserimento mosse, vittoria e riempimento scacchiera.
 """
 
-from src.modules.board import Board, PLAYER_X, PLAYER_O
+from src.modules.board import PLAYER_O, PLAYER_X, Board
 
 
 def test_make_move_success():
