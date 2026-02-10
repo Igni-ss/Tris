@@ -1,5 +1,6 @@
 """
 Modulo di test per la classe Board.
+
 Controlla la logica di inserimento mosse, vittoria e riempimento scacchiera.
 """
 
@@ -9,6 +10,7 @@ from src.modules.board import PLAYER_O, PLAYER_X, Board
 def test_make_move_success():
     """
     Testa se una mossa valida viene registrata correttamente sulla griglia.
+
     Segue il pattern Arrange-Act-Assert (AAA).
     """
     # Arrange
@@ -46,7 +48,7 @@ def test_check_winner_horizontal():
 
 def test_is_full_true():
     """
-    Verifica che la scacchiera venga identificata correttamente come piena (pareggio).
+    Verifica che la scacchiera venga identificata correttamente come piena.
     """
     # Arrange
     board = Board()
