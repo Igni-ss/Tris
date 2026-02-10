@@ -10,6 +10,7 @@ def test_make_move_success():
     assert result is True
     assert board.grid[1][1] == PLAYER_X
 
+
 def test_make_move_invalid_occupied():
     # Arrange
     board = Board()
@@ -19,12 +20,14 @@ def test_make_move_invalid_occupied():
     # Assert
     assert result is False
 
+
 def test_check_winner_horizontal():
     # Arrange
     board = Board()
     board.grid[0] = [PLAYER_X, PLAYER_X, PLAYER_X]
     # Act & Assert
     assert board.check_winner() == PLAYER_X
+
 
 def test_is_full_true():
     # Arrange

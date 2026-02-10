@@ -1,4 +1,4 @@
-import pytest # type: ignore
+import pytest  # type: ignore
 from src.modules.ai import get_best_move
 from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
@@ -6,15 +6,24 @@ from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 scenarios = [
     {
         "name": "Vittoria immediata PC",
-        "grid": [[PLAYER_O, PLAYER_O, EMPTY], [EMPTY, PLAYER_X, EMPTY], [EMPTY, EMPTY, PLAYER_X]],
-        "expected": (0, 2)
+        "grid": [
+            [PLAYER_O, PLAYER_O, EMPTY],
+            [EMPTY, PLAYER_X, EMPTY],
+            [EMPTY, EMPTY, PLAYER_X],
+        ],
+        "expected": (0, 2),
     },
     {
         "name": "Blocco mossa vincente Umano",
-        "grid": [[PLAYER_X, PLAYER_X, EMPTY], [EMPTY, PLAYER_O, EMPTY], [EMPTY, EMPTY, EMPTY]],
-        "expected": (0, 2)
-    }
+        "grid": [
+            [PLAYER_X, PLAYER_X, EMPTY],
+            [EMPTY, PLAYER_O, EMPTY],
+            [EMPTY, EMPTY, EMPTY],
+        ],
+        "expected": (0, 2),
+    },
 ]
+
 
 @pytest.mark.parametrize("test_case", scenarios)
 def test_ai_logic(test_case):
