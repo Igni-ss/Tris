@@ -1,9 +1,10 @@
-import pytest  # type: ignore
+"""Modulo di test per l'algoritmo Minimax dell'IA."""
+
+import pytest
 from src.modules.ai import get_best_move
 from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
-# Definizione scenari di test (GIVEN/WHEN/THEN) [cite: 685, 687, 688, 691]
-scenarios = [
+SCENARIOS = [
     {
         "name": "Vittoria immediata PC",
         "grid": [
@@ -25,8 +26,9 @@ scenarios = [
 ]
 
 
-@pytest.mark.parametrize("test_case", scenarios)
+@pytest.mark.parametrize("test_case", SCENARIOS)
 def test_ai_logic(test_case):
+    """Testa diverse situazioni di gioco per verificare l'ottimalità dell'IA."""
     # Arrange
     board = Board()
     board.grid = test_case["grid"]
