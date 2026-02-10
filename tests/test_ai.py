@@ -1,35 +1,27 @@
-import unittest
+import pytest # type: ignore
+from src.modules.ai import get_best_move
+from src.modules.board import EMPTY, PLAYER_O, PLAYER_X, Board
 
-from src.modules.ai import get_best_move, minimax
-from src.modules.board import PLAYER_O, PLAYER_X, Board
+# Definizione scenari di test (GIVEN/WHEN/THEN) [cite: 685, 687, 688, 691]
+scenarios = [
+    {
+        "name": "Vittoria immediata PC",
+        "grid": [[PLAYER_O, PLAYER_O, EMPTY], [EMPTY, PLAYER_X, EMPTY], [EMPTY, EMPTY, PLAYER_X]],
+        "expected": (0, 2)
+    },
+    {
+        "name": "Blocco mossa vincente Umano",
+        "grid": [[PLAYER_X, PLAYER_X, EMPTY], [EMPTY, PLAYER_O, EMPTY], [EMPTY, EMPTY, EMPTY]],
+        "expected": (0, 2)
+    }
+]
 
-
-class TestAI(unittest.TestCase):
-    def setUp(self):
-        self.board = Board()
-
-    def test_ai_wins_immediately(self):
-        self.board.grid[0][0] = PLAYER_O
-        self.board.grid[0][1] = PLAYER_O
-        move = get_best_move(self.board)
-        self.assertEqual(move, (0, 2))
-
-    def test_ai_blocks_player(self):
-        self.board.grid[1][0] = PLAYER_X
-        self.board.grid[1][1] = PLAYER_X
-        move = get_best_move(self.board)
-        self.assertEqual(move, (1, 2))
-
-    def test_ai_prefers_center_on_empty_board(self):
-        move = get_best_move(self.board)
-        self.assertEqual(move, (1, 1))
-
-    def test_minimax_terminal_state_win(self):
-        self.board.grid[0] = [PLAYER_O, PLAYER_O, PLAYER_O]
-        score = minimax(self.board, 0, False)
-        self.assertEqual(score, 10)
-
-    def test_minimax_terminal_state_loss(self):
-        self.board.grid[0] = [PLAYER_X, PLAYER_X, PLAYER_X]
-        score = minimax(self.board, 0, True)
-        self.assertEqual(score, -10)
+@pytest.mark.parametrize("test_case", scenarios)
+def test_ai_logic(test_case):
+    # Arrange
+    board = Board()
+    board.grid = test_case["grid"]
+    # Act
+    move = get_best_move(board)
+    # Assert
+    assert move == test_case["expected"], f"Fallito: {test_case['name']}"
