@@ -5,6 +5,7 @@ Controlla la logica di inserimento mosse, vittoria e riempimento scacchiera.
 
 from src.modules.board import Board, PLAYER_X, PLAYER_O
 
+
 def test_make_move_success():
     """
     Testa se una mossa valida viene registrata correttamente sulla griglia.
@@ -18,6 +19,7 @@ def test_make_move_success():
     assert result is True
     assert board.grid[1][1] == PLAYER_X
 
+
 def test_make_move_invalid_occupied():
     """
     Testa che il sistema impedisca di giocare in una cella già occupata.
@@ -30,6 +32,7 @@ def test_make_move_invalid_occupied():
     # Assert
     assert result is False
 
+
 def test_check_winner_horizontal():
     """
     Verifica che il metodo check_winner identifichi correttamente una riga completa.
@@ -39,6 +42,7 @@ def test_check_winner_horizontal():
     board.grid[0] = [PLAYER_X, PLAYER_X, PLAYER_X]
     # Act & Assert
     assert board.check_winner() == PLAYER_X
+
 
 def test_is_full_true():
     """
