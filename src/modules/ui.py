@@ -2,45 +2,52 @@
 Modulo per l'interfaccia utente da console.
 """
 
-from typing import List, Tuple
+import tkinter as tk
+from typing import Callable, List
 
 
-class ConsoleUI:
-    """
-    Gestisce l'interazione con l'utente (Input/Output).
-    Serve a tenere il main pulito e leggibile.
-    """
+class GUI:
+    def __init__(self, on_move: Callable[[int, int], None]):
+        self.root = tk.Tk()
+        self.root.title("Tris")
+        self.buttons: List[List[tk.Button]] = []
+        self.on_move = on_move
+        self.status_var = tk.StringVar()
+        self._build_grid()
+        self._build_status()
+
+    def _build_grid(self):
+        for r in range(3):
+            row = []
+            for c in range(3):
+                btn = tk.Button(
+                    self.root,
+                    text="",
+                    font=("Arial", 32),
+                    width=3,
+                    height=1,
+                    command=lambda r=r, c=c: self.on_move(r, c),
+                )
+                btn.grid(row=r, column=c, padx=5, pady=5)
+                row.append(btn)
+            self.buttons.append(row)
+
+    def _build_status(self):
+        status_label = tk.Label(
+            self.root, textvariable=self.status_var, font=("Arial", 14)
+        )
+        status_label.grid(row=3, column=0, columnspan=3, pady=10)
 
     def display_board(self, grid: List[List[str]]) -> None:
-        """Stampa la griglia di gioco."""
-        print("\n")
-        for i, row in enumerate(grid):
-            print(f" {row[0]} | {row[1]} | {row[2]} ")
-            if i < 2:
-                print("---+---+---")
-        print("\n")
-
-    def get_player_move(self) -> Tuple[int, int]:
-        """Chiede all'utente la mossa finché non inserisce dati validi."""
-        while True:
-            try:
-                inp = input("Il tuo turno (X). Inserisci riga e colonna (0-2): ")
-                # Gestisce input tipo "1 1" oppure "1,1"
-                parts = inp.replace(",", " ").split()
-
-                if len(parts) != 2:
-                    print("Devi inserire due numeri separati da spazio.")
-                    continue
-
-                r, c = map(int, parts)
-                return r, c
-            except ValueError:
-                print("Input non valido. Inserisci numeri interi (es: 1 1).")
+        for r in range(3):
+            for c in range(3):
+                self.buttons[r][c]["text"] = grid[r][c] if grid[r][c] else ""
 
     def show_message(self, msg: str) -> None:
-        """Mostra un messaggio informativo all'utente."""
-        print(f"*** {msg} ***")
+        self.status_var.set(msg)
 
     def show_error(self, err: str) -> None:
-        """Mostra un messaggio di errore."""
-        print(f"!!! {err} !!!")
+        self.status_var.set(f"Errore: {err}")
+
+    def mainloop(self):
+        self.root.mainloop()
