@@ -6,6 +6,8 @@ from src.modules.ui import GUI
 @pytest.fixture
 def gui(mocker):
     """Fixture per creare un'istanza di GUI con metodi on_move e on_restart mockati."""
+    mocker.patch("tkinter.Tk")
+    mocker.patch("tkinter.Button")
     on_move = mocker.Mock()
     on_restart = mocker.Mock()
     gui = GUI(on_move, on_restart)
