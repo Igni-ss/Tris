@@ -7,7 +7,10 @@ from typing import Callable, List
 
 
 class GUI:
-    """Gestisce l'interfaccia grafica del gioco, inclusi i pulsanti della scacchiera e i messaggi di stato."""
+    """
+    Gestisce l'interfaccia grafica del gioco, inclusi i pulsanti della scacchiera e i messaggi
+    di stato.
+    """
 
     def __init__(
         self, on_move: Callable[[int, int], None], on_restart: Callable[[], None]
@@ -40,7 +43,9 @@ class GUI:
             self.buttons.append(row)
 
     def _build_status(self):
-        """Costruisce l'area di visualizzazione dei messaggi di stato e il pulsante di ricominciare."""
+        """
+        Costruisce l'area di visualizzazione dei messaggi di stato e il pulsante di ricominciare.
+        """
         self.status_label = tk.Label(
             self.root, textvariable=self.status_var, font=("Arial", 14)
         )
@@ -78,14 +83,14 @@ class GUI:
     def show_message(self, msg: str) -> None:
         """Visualizza un messaggio di stato all'utente."""
         self.status_var.set(msg)
-        self._update_status_color("black")
+        self.update_status_color("black")
 
     def show_error(self, err: str) -> None:
         """Visualizza un messaggio di errore all'utente."""
         self.status_var.set(f"Errore: {err}")
-        self._update_status_color("red")
+        self.update_status_color("red")
 
-    def _update_status_color(self, color: str) -> None:
+    def update_status_color(self, color: str) -> None:
         """Aggiorna il colore del testo del messaggio di stato."""
         self.status_label.config(fg=color)
 

@@ -1,3 +1,8 @@
+"""
+Il modulo GameController coordina la logica del gioco, gestisce le interazioni tra la scacchiera
+e l'interfaccia utente e implementa la logica di gioco contro il PC.
+"""
+
 from .ai import get_best_move
 from .board import PLAYER_O, PLAYER_X, Board
 from .ui import GUI
@@ -17,14 +22,19 @@ class GameController:
         self.gui.mainloop()
 
     def start_new_game(self) -> None:
-        """Inizializza una nuova partita, resettando la scacchiera e aggiornando l'interfaccia utente."""
+        """
+        Inizializza una nuova partita, resettando la scacchiera e aggiornando l'interfaccia utente
+        """
         self.board = Board()
         self.current_player = PLAYER_X
         self.gui.display_board(self.board.grid)
         self.gui.show_message("BENVENUTO A TRIS IMBATTIBILE!")
 
     def on_move(self, r: int, c: int):
-        """Gestisce la mossa del giocatore, aggiorna la scacchiera e verifica le condizioni di vittoria o pareggio."""
+        """
+        Gestisce la mossa del giocatore, aggiorna la scacchiera e verifica le condizioni di vittoria
+        o pareggio
+        """
         if self.board.check_winner() or self.board.is_full():
             return
         if self.current_player == PLAYER_X:
@@ -41,10 +51,13 @@ class GameController:
                 self.gui.show_message("PARTITA FINITA! Pareggio.")
                 self.gui.show_restart(True)
                 return
-            self.PC_move()
+            self.pc_move()
 
-    def PC_move(self) -> None:
-        """Esegue la mossa del PC, aggiorna la scacchiera e verifica le condizioni di vittoria o pareggio."""
+    def pc_move(self) -> None:
+        """
+        Esegue la mossa del PC, aggiorna la scacchiera e verifica le condizioni di vittoria
+        o pareggio
+        """
         self.gui.show_message("Il PC sta pensando...")
         row, col = get_best_move(self.board)
         self.board.make_move(row, col, PLAYER_O)
