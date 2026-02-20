@@ -3,10 +3,12 @@ Modulo per l'interfaccia utente da console.
 """
 
 import tkinter as tk
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 
 class GUI:
+    """Gestisce l'interfaccia grafica del gioco, inclusi i pulsanti della scacchiera e i messaggi di stato."""
+
     def __init__(
         self, on_move: Callable[[int, int], None], on_restart: Callable[[], None]
     ):
@@ -21,6 +23,7 @@ class GUI:
         self._build_status()
 
     def _build_grid(self):
+        """Costruisce la griglia 3x3 di pulsanti per il gioco."""
         for r in range(3):
             row = []
             for c in range(3):
@@ -37,6 +40,7 @@ class GUI:
             self.buttons.append(row)
 
     def _build_status(self):
+        """Costruisce l'area di visualizzazione dei messaggi di stato e il pulsante di ricominciare."""
         self.status_label = tk.Label(
             self.root, textvariable=self.status_var, font=("Arial", 14)
         )
@@ -52,6 +56,7 @@ class GUI:
         self.restart_button.grid_remove()
 
     def show_restart(self, show: bool = True):
+        """Mostra o nasconde il pulsante di ricominciare."""
         if self.restart_button:
             if show:
                 self.restart_button.grid()
@@ -59,25 +64,31 @@ class GUI:
                 self.restart_button.grid_remove()
 
     def _on_restart_click(self):
+        """Gestisce il click sul pulsante di ricominciare e chiama la callback associata."""
         if self.on_restart:
             self.on_restart()
 
     def display_board(self, grid: List[List[str]]) -> None:
+        """Aggiorna i pulsanti della griglia per riflettere lo stato attuale del gioco."""
         for r in range(3):
             for c in range(3):
                 self.buttons[r][c]["text"] = grid[r][c] if grid[r][c] else ""
         self.show_restart(False)
 
     def show_message(self, msg: str) -> None:
+        """Visualizza un messaggio di stato all'utente."""
         self.status_var.set(msg)
         self._update_status_color("black")
 
     def show_error(self, err: str) -> None:
+        """Visualizza un messaggio di errore all'utente."""
         self.status_var.set(f"Errore: {err}")
         self._update_status_color("red")
 
     def _update_status_color(self, color: str) -> None:
+        """Aggiorna il colore del testo del messaggio di stato."""
         self.status_label.config(fg=color)
 
     def mainloop(self):
+        """Avvia il loop principale dell'interfaccia grafica."""
         self.root.mainloop()

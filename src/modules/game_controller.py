@@ -4,6 +4,11 @@ from .ui import GUI
 
 
 class GameController:
+    """
+    Coordina la logica del gioco, gestisce le interazioni tra la scacchiera e l'interfaccia utente
+    e implementa la logica di gioco contro il PC.
+    """
+
     def __init__(self) -> None:
         self.board = Board()
         self.gui = GUI(self.on_move, self.start_new_game)
@@ -12,12 +17,14 @@ class GameController:
         self.gui.mainloop()
 
     def start_new_game(self) -> None:
+        """Inizializza una nuova partita, resettando la scacchiera e aggiornando l'interfaccia utente."""
         self.board = Board()
         self.current_player = PLAYER_X
         self.gui.display_board(self.board.grid)
         self.gui.show_message("BENVENUTO A TRIS IMBATTIBILE!")
 
     def on_move(self, r: int, c: int):
+        """Gestisce la mossa del giocatore, aggiorna la scacchiera e verifica le condizioni di vittoria o pareggio."""
         if self.board.check_winner() or self.board.is_full():
             return
         if self.current_player == PLAYER_X:
@@ -37,6 +44,7 @@ class GameController:
             self.PC_move()
 
     def PC_move(self) -> None:
+        """Esegue la mossa del PC, aggiorna la scacchiera e verifica le condizioni di vittoria o pareggio."""
         self.gui.show_message("Il PC sta pensando...")
         row, col = get_best_move(self.board)
         self.board.make_move(row, col, PLAYER_O)

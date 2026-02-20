@@ -6,6 +6,7 @@ from .modules.game_controller import GameController
 
 
 def main():
+    """Inizializza e avvia il gioco."""
     GameController()
 
 
