@@ -24,6 +24,15 @@ SCENARIOS = [
         ],
         "expected": (0, 2),
     },
+    {
+        "name": "Blocco mossa vincente Umano",
+        "grid": [
+            [EMPTY, EMPTY, EMPTY],
+            [EMPTY, EMPTY, EMPTY],
+            [EMPTY, EMPTY, EMPTY],
+        ],
+        "expected": (1, 1),
+    },
 ]
 
 
