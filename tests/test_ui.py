@@ -25,7 +25,7 @@ def test_button_callback(gui):
     della griglia
     """
     gui.buttons[0][1].invoke()
-    gui.on_move.assert_called_once_with(0, 1)
+    gui.callbacks["on_move"].assert_called_once_with(0, 1)
 
 
 def test_difficulty_button_callback(gui):
@@ -33,8 +33,8 @@ def test_difficulty_button_callback(gui):
     Testa che il callback on_difficulty_change venga chiamato correttamente quando si clicca sul
     pulsante della difficoltà
     """
-    gui.difficulty_button.invoke()
-    gui.on_difficulty_change.assert_called_once()
+    gui.widgets["difficulty_button"].invoke()
+    gui.callbacks["on_difficulty_change"].assert_called_once()
 
 
 def test_display_board(gui):
@@ -57,7 +57,7 @@ def test_show_message(gui):
     """
     gui.show_message("Turno X")
     assert gui.status_var.get() == "Turno X"
-    assert gui.status_label.cget("fg") == "black"
+    assert gui.widgets["status_label"].cget("fg") == "black"
 
 
 def test_show_error(gui):
@@ -67,7 +67,7 @@ def test_show_error(gui):
     """
     gui.show_error("Mossa non valida")
     assert gui.status_var.get() == "Errore: Mossa non valida"
-    assert gui.status_label.cget("fg") == "red"
+    assert gui.widgets["status_label"].cget("fg") == "red"
 
 
 def test_status_color(gui):
@@ -76,7 +76,7 @@ def test_status_color(gui):
     messaggio di stato.
     """
     gui.update_status_color("blue")
-    assert gui.status_label.cget("fg") == "blue"
+    assert gui.widgets["status_label"].cget("fg") == "blue"
 
 
 def test_show_difficulty(gui):
@@ -85,7 +85,10 @@ def test_show_difficulty(gui):
     difficoltà.
     """
     gui.show_difficulty(gui.difficulty)
-    assert gui.difficulty_button.cget("text") == f"Difficoltà: {gui.difficulty.name}"
+    assert (
+        gui.widgets["difficulty_button"].cget("text")
+        == f"Difficoltà: {gui.difficulty.name}"
+    )
 
 
 def test_restart_button_callback(gui):
@@ -94,5 +97,5 @@ def test_restart_button_callback(gui):
     di restart.
     """
     gui.show_restart(True)
-    gui.restart_button.invoke()
-    gui.on_restart.assert_called_once()
+    gui.widgets["restart_button"].invoke()
+    gui.callbacks["on_restart"].assert_called_once()

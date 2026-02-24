@@ -11,6 +11,8 @@ from .board import EMPTY, PLAYER_O, PLAYER_X, Board
 
 
 class Difficulty(Enum):
+    """Enum per rappresentare i livelli di difficoltà dell'IA."""
+
     EASY = 1
     MEDIUM = 3
     HARD = 5
