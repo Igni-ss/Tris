@@ -35,6 +35,18 @@ def test_make_move_invalid_occupied():
     assert result is False
 
 
+def test_make_move_invalid_coordinates():
+    """
+    Testa che il sistema impedisca di giocare in coordinate fuori dalla griglia.
+    """
+    # Arrange
+    board = Board()
+    # Act
+    result = board.make_move(3, 3, PLAYER_X)
+    # Assert
+    assert result is False
+
+
 def test_check_winner_horizontal():
     """
     Verifica che il metodo check_winner identifichi correttamente una riga completa.
@@ -42,6 +54,19 @@ def test_check_winner_horizontal():
     # Arrange
     board = Board()
     board.grid[0] = [PLAYER_X, PLAYER_X, PLAYER_X]
+    # Act & Assert
+    assert board.check_winner() == PLAYER_X
+
+
+def test_check_winner_diagonal():
+    """
+    Verifica che il metodo check_winner identifichi correttamente una diagonale completa.
+    """
+    # Arrange
+    board = Board()
+    board.grid[0] = [PLAYER_X, "", ""]
+    board.grid[1] = ["", PLAYER_X, ""]
+    board.grid[2] = ["", "", PLAYER_X]
     # Act & Assert
     assert board.check_winner() == PLAYER_X
 
