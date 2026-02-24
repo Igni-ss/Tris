@@ -13,7 +13,8 @@ def gui(mocker):
     """
     on_move = mocker.Mock()
     on_restart = mocker.Mock()
-    gui = GUI(on_move, on_restart)
+    on_difficulty_change = mocker.Mock()
+    gui = GUI(on_move, on_restart, on_difficulty_change)
     yield gui
     gui.root.destroy()  # chiude la finestra dopo il test
 
@@ -25,6 +26,15 @@ def test_button_callback(gui):
     """
     gui.buttons[0][1].invoke()
     gui.on_move.assert_called_once_with(0, 1)
+
+
+def test_difficulty_button_callback(gui):
+    """
+    Testa che il callback on_difficulty_change venga chiamato correttamente quando si clicca sul
+    pulsante della difficoltà
+    """
+    gui.difficulty_button.invoke()
+    gui.on_difficulty_change.assert_called_once()
 
 
 def test_display_board(gui):
@@ -69,10 +79,19 @@ def test_status_color(gui):
     assert gui.status_label.cget("fg") == "blue"
 
 
+def test_show_difficulty(gui):
+    """
+    Testa che la funzione show_difficulty aggiorni correttamente il testo del pulsante della
+    difficoltà.
+    """
+    gui.show_difficulty(gui.difficulty)
+    assert gui.difficulty_button.cget("text") == f"Difficoltà: {gui.difficulty.name}"
+
+
 def test_restart_button_callback(gui):
     """
     Testa che il callback on_restart venga chiamato correttamente quando si clicca sul pulsante
-    di ricominciare.
+    di restart.
     """
     gui.show_restart(True)
     gui.restart_button.invoke()
