@@ -127,8 +127,6 @@ def test_pc_move(controller_and_mocks):
     """
     controller, board, gui, mock_get_best_move = controller_and_mocks
     mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [None]
-    board.is_full.side_effect = [False, False]
     board.make_move.return_value = PLAYER_O
 
     controller.pc_move()
@@ -138,7 +136,6 @@ def test_pc_move(controller_and_mocks):
     board.make_move.assert_called_once_with(1, 1, PLAYER_O)
     gui.display_board.assert_called_once_with(board.grid)
     gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    board.check_winner.assert_called()
     assert controller.current_player == PLAYER_X
 
 
@@ -148,8 +145,6 @@ def test_pc_move_win(controller_and_mocks):
     """
     controller, board, gui, mock_get_best_move = controller_and_mocks
     mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [PLAYER_O]
-    board.is_full.side_effect = [False, False]
     board.make_move.return_value = PLAYER_O
 
     controller.pc_move()
@@ -158,9 +153,6 @@ def test_pc_move_win(controller_and_mocks):
     board.make_move.assert_called_once_with(1, 1, PLAYER_O)
     gui.display_board.assert_called_once_with(board.grid)
     gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    gui.show_message.assert_any_call("PARTITA FINITA! Ha vinto: O")
-    gui.show_restart.assert_called_with(True)
-    board.check_winner.assert_called()
     assert controller.current_player == PLAYER_X
 
 
@@ -171,8 +163,6 @@ def test_pc_move_full(controller_and_mocks):
     """
     controller, board, gui, mock_get_best_move = controller_and_mocks
     mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [False]
-    board.is_full.side_effect = [True]
     board.make_move.return_value = PLAYER_O
 
     controller.pc_move()
@@ -181,7 +171,32 @@ def test_pc_move_full(controller_and_mocks):
     board.make_move.assert_called_once_with(1, 1, PLAYER_O)
     gui.display_board.assert_called_once_with(board.grid)
     gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    gui.show_message.assert_any_call("PARTITA FINITA! Pareggio.")
-    gui.show_restart.assert_called_with(True)
-    board.check_winner.assert_called()
     assert controller.current_player == PLAYER_X
+
+
+def test_check_game_over_no_winner(controller_and_mocks):
+    """
+    Testa che check_game_over ritorni False se la partita non è finita (nessun vincitore e
+    scacchiera non piena).
+    """
+    controller, board, _, _ = controller_and_mocks
+    board.check_winner.return_value = None
+    board.is_full.return_value = False
+
+    result = controller.check_game_over()
+
+    assert result is False
+
+
+def test_check_game_over_winner(controller_and_mocks):
+    """
+    Testa che check_game_over ritorni True e mostri il messaggio di vittoria se c'è un vincitore.
+    """
+    controller, board, gui, _ = controller_and_mocks
+    board.check_winner.return_value = PLAYER_X
+
+    result = controller.check_game_over()
+
+    assert result is True
+    gui.show_message.assert_called_with("PARTITA FINITA! Ha vinto: X")
+    gui.show_restart.assert_called_with(True)
