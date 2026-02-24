@@ -3,9 +3,17 @@ Modulo per la gestione dell'Intelligenza Artificiale (Minimax).
 """
 
 import math
+import random
+from enum import Enum
 from typing import Tuple
 
 from .board import EMPTY, PLAYER_O, PLAYER_X, Board
+
+
+class Difficulty(Enum):
+    EASY = 1
+    MEDIUM = 3
+    HARD = 5
 
 
 def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
@@ -40,12 +48,23 @@ def minimax(board: Board, depth: int, is_maximizing: bool) -> float:
     return best_score
 
 
-def get_best_move(board: Board) -> Tuple[int, int]:
-    """Calcola la mossa migliore per il PC."""
+def get_best_move(
+    board: Board, difficulty: Difficulty = Difficulty.MEDIUM
+) -> Tuple[int, int]:
+    """Calcola la mossa migliore per il PC, in base alla difficoltà."""
+    available_moves = board.get_available_moves()
+
+    if difficulty == Difficulty.EASY:
+        return random.choice(available_moves)
+
+    if difficulty == Difficulty.MEDIUM:
+        if random.random() < 0.5:
+            return random.choice(available_moves)
+
+    # Per HARD o se il MEDIUM decide di giocare strategicamente, usa Minimax
     best_score = -math.inf
     best_move = (-1, -1)
 
-    available_moves = board.get_available_moves()
     if len(available_moves) == 9:
         return (1, 1)
 

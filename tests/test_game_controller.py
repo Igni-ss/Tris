@@ -35,7 +35,7 @@ def test_init_controller(mocker):
 
     mock_board.assert_called_once()
     mock_gui.assert_called_once()
-    mock_gui().show_message.assert_called_with("BENVENUTO A TRIS IMBATTIBILE!")
+    mock_gui().show_message.assert_called_with("BENVENUTO A TRIS GUI!")
     mock_gui().mainloop.assert_called_once()
     assert controller.current_player == PLAYER_X
 
@@ -50,7 +50,7 @@ def test_start_new_game(mocker, controller_and_mocks):
     assert controller.current_player == PLAYER_X
     assert isinstance(controller.board, type(mock_board.return_value))
     gui.display_board.assert_called_once_with(mock_board.return_value.grid)
-    gui.show_message.assert_called_with("BENVENUTO A TRIS IMBATTIBILE!")
+    gui.show_message.assert_called_with("BENVENUTO A TRIS GUI!")
 
 
 def test_on_move_valid_and_pc_move(mocker, controller_and_mocks):

@@ -3,7 +3,7 @@ Il modulo GameController coordina la logica del gioco, gestisce le interazioni t
 e l'interfaccia utente e implementa la logica di gioco contro il PC.
 """
 
-from .ai import get_best_move
+from .ai import Difficulty, get_best_move
 from .board import PLAYER_O, PLAYER_X, Board
 from .ui import GUI
 
@@ -15,10 +15,13 @@ class GameController:
     """
 
     def __init__(self) -> None:
+        self.difficulty = Difficulty.MEDIUM
         self.board = Board()
-        self.gui = GUI(self.on_move, self.start_new_game)
+        self.gui = GUI(
+            self.on_move, self.start_new_game, self.cycle_difficulty, self.difficulty
+        )
         self.current_player = PLAYER_X
-        self.gui.show_message("BENVENUTO A TRIS IMBATTIBILE!")
+        self.gui.show_message("BENVENUTO A TRIS GUI!")
         self.gui.mainloop()
 
     def start_new_game(self) -> None:
@@ -28,7 +31,7 @@ class GameController:
         self.board = Board()
         self.current_player = PLAYER_X
         self.gui.display_board(self.board.grid)
-        self.gui.show_message("BENVENUTO A TRIS IMBATTIBILE!")
+        self.gui.show_message("BENVENUTO A TRIS GUI!")
 
     def on_move(self, r: int, c: int):
         """
@@ -46,13 +49,21 @@ class GameController:
                 return
             self.pc_move()
 
+    def cycle_difficulty(self):
+        """Cicla tra le difficoltà e aggiorna il pulsante e la callback."""
+        difficulties = list(Difficulty)
+        current_idx = difficulties.index(self.difficulty)
+        next_idx = (current_idx + 1) % len(difficulties)
+        self.difficulty = difficulties[next_idx]
+        self.gui.show_difficulty(self.difficulty)
+
     def pc_move(self) -> None:
         """
         Esegue la mossa del PC, aggiorna la scacchiera e verifica le condizioni di vittoria
         o pareggio
         """
         self.gui.show_message("Il PC sta pensando...")
-        row, col = get_best_move(self.board)
+        row, col = get_best_move(self.board, self.difficulty)
         self.board.make_move(row, col, PLAYER_O)
         self.gui.display_board(self.board.grid)
         self.gui.show_message(f"Il PC ha giocato in {row} {col}")
