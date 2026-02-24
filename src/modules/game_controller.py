@@ -42,14 +42,7 @@ class GameController:
                 self.gui.show_error("Mossa non valida o cella occupata! Riprova.")
                 return
             self.gui.display_board(self.board.grid)
-            winner = self.board.check_winner()
-            if winner:
-                self.gui.show_message(f"PARTITA FINITA! Ha vinto: {winner}")
-                self.gui.show_restart(True)
-                return
-            if self.board.is_full():
-                self.gui.show_message("PARTITA FINITA! Pareggio.")
-                self.gui.show_restart(True)
+            if self.check_game_over():
                 return
             self.pc_move()
 
@@ -63,13 +56,21 @@ class GameController:
         self.board.make_move(row, col, PLAYER_O)
         self.gui.display_board(self.board.grid)
         self.gui.show_message(f"Il PC ha giocato in {row} {col}")
+        if self.check_game_over():
+            return
+        self.current_player = PLAYER_X
+
+    def check_game_over(self) -> bool:
+        """
+        Verifica se la partita è finita, controllando se c'è un vincitore o se la scacchiera è piena
+        """
         winner = self.board.check_winner()
         if winner:
             self.gui.show_message(f"PARTITA FINITA! Ha vinto: {winner}")
             self.gui.show_restart(True)
-            return
+            return True
         if self.board.is_full():
             self.gui.show_message("PARTITA FINITA! Pareggio.")
             self.gui.show_restart(True)
-            return
-        self.current_player = PLAYER_X
+            return True
+        return False
