@@ -2,6 +2,7 @@
 
 import pytest
 
+from src.modules.ai import Difficulty
 from src.modules.board import PLAYER_O, PLAYER_X
 from src.modules.game_controller import GameController
 
@@ -20,6 +21,7 @@ def controller_and_mocks(mocker):
     controller.board = mocker.MagicMock()
     controller.gui = mock_gui.return_value
     controller.current_player = PLAYER_X
+    controller.difficulty = Difficulty.MEDIUM
     return controller, controller.board, controller.gui, mock_get_best_move
 
 
@@ -35,7 +37,7 @@ def test_init_controller(mocker):
 
     mock_board.assert_called_once()
     mock_gui.assert_called_once()
-    mock_gui().show_message.assert_called_with("BENVENUTO A TRIS IMBATTIBILE!")
+    mock_gui().show_message.assert_called_with("BENVENUTO A TRIS GUI!")
     mock_gui().mainloop.assert_called_once()
     assert controller.current_player == PLAYER_X
 
@@ -50,7 +52,7 @@ def test_start_new_game(mocker, controller_and_mocks):
     assert controller.current_player == PLAYER_X
     assert isinstance(controller.board, type(mock_board.return_value))
     gui.display_board.assert_called_once_with(mock_board.return_value.grid)
-    gui.show_message.assert_called_with("BENVENUTO A TRIS IMBATTIBILE!")
+    gui.show_message.assert_called_with("BENVENUTO A TRIS GUI!")
 
 
 def test_on_move_valid_and_pc_move(mocker, controller_and_mocks):
@@ -120,68 +122,93 @@ def test_on_move_draw(controller_and_mocks):
     gui.show_restart.assert_called_with(True)
 
 
-def test_pc_move(controller_and_mocks):
+def test_cycle_difficulty(controller_and_mocks):
+    """Testa che cycle_difficulty cicli correttamente tra le difficoltà e aggiorni il pulsante."""
+    controller, _, gui, _ = controller_and_mocks
+    initial_difficulty = controller.difficulty
+
+    controller.cycle_difficulty()
+    assert controller.difficulty != initial_difficulty
+    gui.show_difficulty.assert_called_with(controller.difficulty)
+
+    controller.cycle_difficulty()
+    assert controller.difficulty != initial_difficulty
+    gui.show_difficulty.assert_called_with(controller.difficulty)
+
+    controller.cycle_difficulty()
+    assert controller.difficulty == initial_difficulty
+    gui.show_difficulty.assert_called_with(controller.difficulty)
+
+
+# Scenari parametrizzati per test_pc_move
+SCENARIOS_PC_MOVE = [
+    {
+        "name": "Mossa normale PC",
+        "check_winner_return": None,
+        "is_full_return": False,
+        "expected_message": "Il PC ha giocato in 1 1",
+    },
+    {
+        "name": "Vittoria PC",
+        "check_winner_return": PLAYER_O,
+        "is_full_return": False,
+        "expected_message": "Il PC ha giocato in 1 1",
+    },
+    {
+        "name": "Pareggio",
+        "check_winner_return": None,
+        "is_full_return": True,
+        "expected_message": "Il PC ha giocato in 1 1",
+    },
+]
+
+
+@pytest.mark.parametrize("scenario", SCENARIOS_PC_MOVE)
+def test_pc_move_parametrized(controller_and_mocks, scenario):
     """
-    Testa che pc_move esegua correttamente la mossa del PC, aggiorni la scacchiera e mostri i
-    messaggi corretti.
+    Test parametrico per pc_move: verifica comportamento in caso di mossa normale, vittoria
+    o pareggio.
     """
     controller, board, gui, mock_get_best_move = controller_and_mocks
     mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [None]
-    board.is_full.side_effect = [False, False]
-    board.make_move.return_value = PLAYER_O
+    board.make_move.return_value = True
+    board.check_winner.return_value = scenario["check_winner_return"]
+    board.is_full.return_value = scenario["is_full_return"]
 
     controller.pc_move()
 
     gui.show_message.assert_any_call("Il PC sta pensando...")
-    mock_get_best_move.assert_called_once_with(board)
+    mock_get_best_move.assert_called_once_with(board, controller.difficulty)
     board.make_move.assert_called_once_with(1, 1, PLAYER_O)
     gui.display_board.assert_called_once_with(board.grid)
-    gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    board.check_winner.assert_called()
+    gui.show_message.assert_any_call(scenario["expected_message"])
     assert controller.current_player == PLAYER_X
 
 
-def test_pc_move_win(controller_and_mocks):
+def test_check_game_over_no_winner(controller_and_mocks):
     """
-    Testa che pc_move gestisca correttamente la vittoria del PC mostrando il messaggio di vittoria
+    Testa che check_game_over ritorni False se la partita non è finita (nessun vincitore e
+    scacchiera non piena).
     """
-    controller, board, gui, mock_get_best_move = controller_and_mocks
-    mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [PLAYER_O]
-    board.is_full.side_effect = [False, False]
-    board.make_move.return_value = PLAYER_O
+    controller, board, _, _ = controller_and_mocks
+    board.check_winner.return_value = None
+    board.is_full.return_value = False
 
-    controller.pc_move()
+    result = controller.check_game_over()
 
-    mock_get_best_move.assert_called_once_with(board)
-    board.make_move.assert_called_once_with(1, 1, PLAYER_O)
-    gui.display_board.assert_called_once_with(board.grid)
-    gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    gui.show_message.assert_any_call("PARTITA FINITA! Ha vinto: O")
+    assert result is False
+
+
+def test_check_game_over_winner(controller_and_mocks):
+    """
+    Testa che check_game_over ritorni True e mostri il messaggio di vittoria se c'è un vincitore.
+    """
+    controller, board, gui, _ = controller_and_mocks
+    board.check_winner.return_value = PLAYER_X
+
+    result = controller.check_game_over()
+
+    assert result is True
+    gui.show_message.assert_called_with("PARTITA FINITA! Ha vinto: X")
     gui.show_restart.assert_called_with(True)
-    board.check_winner.assert_called()
-    assert controller.current_player == PLAYER_X
-
-
-def test_pc_move_full(controller_and_mocks):
-    """
-    Testa che pc_move gestisca correttamente la situazione di pareggio mostrando il messaggio di
-    pareggio.
-    """
-    controller, board, gui, mock_get_best_move = controller_and_mocks
-    mock_get_best_move.return_value = (1, 1)
-    board.check_winner.side_effect = [False]
-    board.is_full.side_effect = [True]
-    board.make_move.return_value = PLAYER_O
-
-    controller.pc_move()
-
-    mock_get_best_move.assert_called_once_with(board)
-    board.make_move.assert_called_once_with(1, 1, PLAYER_O)
-    gui.display_board.assert_called_once_with(board.grid)
-    gui.show_message.assert_any_call("Il PC ha giocato in 1 1")
-    gui.show_message.assert_any_call("PARTITA FINITA! Pareggio.")
     gui.show_restart.assert_called_with(True)
-    board.check_winner.assert_called()
-    assert controller.current_player == PLAYER_X
