@@ -11,14 +11,20 @@ from .ui import GUI
 class GameController:
     """
     Coordina la logica del gioco, gestisce le interazioni tra la scacchiera e l'interfaccia utente
-    e implementa la logica di gioco contro il PC.
+    e implementa la logica di gioco contro il PC o in modalità PvP.
     """
 
     def __init__(self) -> None:
         self.difficulty = Difficulty.MEDIUM
+        self.mode = "PC"  # "PC" o "PvP"
         self.board = Board()
         self.gui = GUI(
-            self.on_move, self.start_new_game, self.cycle_difficulty, self.difficulty
+            self.on_move,
+            self.start_new_game,
+            self.cycle_difficulty,
+            self.cycle_mode,
+            self.difficulty,
+            self.mode,
         )
         self.current_player = PLAYER_X
         self.gui.show_message("BENVENUTO A TRIS GUI!")
@@ -40,14 +46,29 @@ class GameController:
         """
         if self.board.check_winner() or self.board.is_full():
             return
-        if self.current_player == PLAYER_X:
-            if not self.board.make_move(r, c, PLAYER_X):
-                self.gui.show_error("Mossa non valida o cella occupata! Riprova.")
-                return
-            self.gui.display_board(self.board.grid)
-            if self.check_game_over():
-                return
-            self.pc_move()
+        if not self.board.make_move(r, c, self.current_player):
+            self.gui.show_error("Mossa non valida o cella occupata! Riprova.")
+            return
+        self.gui.display_board(self.board.grid)
+        if self.check_game_over():
+            return
+        if self.mode == "PC":
+            if self.current_player == PLAYER_X:
+                self.pc_move()
+        else:  # PvP
+            self.current_player = (
+                PLAYER_O if self.current_player == PLAYER_X else PLAYER_X
+            )
+
+    def cycle_mode(self):
+        """Cicla tra le modalità di gioco (PC/PvP) e aggiorna la GUI."""
+        self.mode = "PvP" if self.mode == "PC" else "PC"
+        self.gui.update_mode(self.mode)
+        if self.mode == "PC":
+            self.gui.show_difficulty(True)
+        else:
+            self.gui.show_difficulty(False)
+        self.start_new_game()
 
     def cycle_difficulty(self):
         """Cicla tra le difficoltà e aggiorna il pulsante e la callback."""
@@ -55,7 +76,7 @@ class GameController:
         current_idx = difficulties.index(self.difficulty)
         next_idx = (current_idx + 1) % len(difficulties)
         self.difficulty = difficulties[next_idx]
-        self.gui.show_difficulty(self.difficulty)
+        self.gui.update_difficulty(self.difficulty)
 
     def pc_move(self) -> None:
         """
