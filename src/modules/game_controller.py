@@ -47,8 +47,6 @@ class GameController:
         Gestisce la mossa del giocatore, aggiorna la scacchiera e verifica le condizioni di vittoria
         o pareggio
         """
-        if self.board.check_winner() or self.board.is_full():
-            return
         if not self.board.make_move(r, c, self.current_player):
             self.gui.show_error("Mossa non valida o cella occupata! Riprova.")
             return
