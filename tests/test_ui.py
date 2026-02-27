@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.modules.ui import GUI
+from src.modules.ui import GUI, GUICallbacksDict, Mode
 
 
 # pylint: disable=redefined-outer-name
@@ -14,7 +14,14 @@ def gui(mocker):
     on_move = mocker.Mock()
     on_restart = mocker.Mock()
     on_difficulty_change = mocker.Mock()
-    gui = GUI(on_move, on_restart, on_difficulty_change)
+    on_mode_change = mocker.Mock()
+    callbacks: GUICallbacksDict = {
+        "on_move": on_move,
+        "on_restart": on_restart,
+        "on_difficulty_change": on_difficulty_change,
+        "on_mode_change": on_mode_change,
+    }
+    gui = GUI(callbacks)
     yield gui
     gui.root.destroy()  # chiude la finestra dopo il test
 
@@ -35,6 +42,15 @@ def test_difficulty_button_callback(gui):
     """
     gui.widgets["difficulty_button"].invoke()
     gui.callbacks["on_difficulty_change"].assert_called_once()
+
+
+def test_mode_button_callback(gui):
+    """
+    Testa che il callback on_mode_change venga chiamato correttamente quando si clicca sul
+    pulsante della modalità
+    """
+    gui.widgets["mode_button"].invoke()
+    gui.callbacks["on_mode_change"].assert_called_once()
 
 
 def test_display_board(gui):
@@ -81,14 +97,37 @@ def test_status_color(gui):
 
 def test_show_difficulty(gui):
     """
-    Testa che la funzione show_difficulty aggiorni correttamente il testo del pulsante della
+    Testa che la funzione show_difficulty mostri o nasconda correttamente il pulsante della
     difficoltà.
     """
-    gui.show_difficulty(gui.difficulty)
+    gui.show_difficulty(True)
+    gui.root.update_idletasks()
+    assert gui.widgets["difficulty_button"].winfo_ismapped() == 1
+    gui.show_difficulty(False)
+    gui.root.update_idletasks()
+    assert gui.widgets["difficulty_button"].winfo_ismapped() == 0
+
+
+def test_update_difficulty(gui):
+    """
+    Testa che la funzione update_difficulty aggiorni correttamente il testo del pulsante della
+    difficoltà.
+    """
+    gui.update_difficulty(gui.difficulty)
     assert (
         gui.widgets["difficulty_button"].cget("text")
         == f"Difficoltà: {gui.difficulty.name}"
     )
+
+
+def test_update_mode(gui):
+    """
+    Testa che la funzione update_mode aggiorni correttamente il testo del pulsante della modalità.
+    """
+    gui.update_mode(Mode.PVP)
+    assert gui.widgets["mode_button"].cget("text") == f"Modalità: {Mode.PVP.value}"
+    gui.update_mode(Mode.PC)
+    assert gui.widgets["mode_button"].cget("text") == f"Modalità: {Mode.PC.value}"
 
 
 def test_restart_button_callback(gui):
