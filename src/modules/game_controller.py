@@ -51,6 +51,7 @@ class GameController:
             self.gui.show_error("Mossa non valida o cella occupata! Riprova.")
             return
         self.gui.display_board(self.board.grid)
+        self.gui.show_message(f"{self.current_player} ha giocato in {r} {c}")
         if self.check_game_over():
             return
         if self.mode == Mode.PC:
