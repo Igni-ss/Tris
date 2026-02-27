@@ -5,7 +5,7 @@ e l'interfaccia utente e implementa la logica di gioco contro il PC.
 
 from .ai import Difficulty, get_best_move
 from .board import PLAYER_O, PLAYER_X, Board
-from .ui import GUI
+from .ui import GUI, GUICallbacksDict, Mode
 
 
 class GameController:
@@ -16,13 +16,16 @@ class GameController:
 
     def __init__(self) -> None:
         self.difficulty = Difficulty.MEDIUM
-        self.mode = "PC"  # "PC" o "PvP"
+        self.mode = Mode.PC
         self.board = Board()
+        callbacks: GUICallbacksDict = {
+            "on_move": self.on_move,
+            "on_restart": self.start_new_game,
+            "on_difficulty_change": self.cycle_difficulty,
+            "on_mode_change": self.cycle_mode,
+        }
         self.gui = GUI(
-            self.on_move,
-            self.start_new_game,
-            self.cycle_difficulty,
-            self.cycle_mode,
+            callbacks,
             self.difficulty,
             self.mode,
         )
@@ -52,7 +55,7 @@ class GameController:
         self.gui.display_board(self.board.grid)
         if self.check_game_over():
             return
-        if self.mode == "PC":
+        if self.mode == Mode.PC:
             if self.current_player == PLAYER_X:
                 self.pc_move()
         else:  # PvP
@@ -62,9 +65,9 @@ class GameController:
 
     def cycle_mode(self):
         """Cicla tra le modalità di gioco (PC/PvP) e aggiorna la GUI."""
-        self.mode = "PvP" if self.mode == "PC" else "PC"
+        self.mode = Mode.PVP if self.mode == Mode.PC else Mode.PC
         self.gui.update_mode(self.mode)
-        if self.mode == "PC":
+        if self.mode == Mode.PC:
             self.gui.show_difficulty(True)
         else:
             self.gui.show_difficulty(False)

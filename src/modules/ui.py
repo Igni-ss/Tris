@@ -3,9 +3,26 @@ Modulo per l'interfaccia utente da console.
 """
 
 import tkinter as tk
-from typing import Any, Callable, List
+from enum import Enum
+from typing import Any, Callable, List, TypedDict
 
 from .ai import Difficulty
+
+
+class GUICallbacksDict(TypedDict):
+    """Tipo per i callback della GUI."""
+
+    on_move: Callable[[int, int], None]
+    on_restart: Callable[[], None]
+    on_difficulty_change: Callable[[], None]
+    on_mode_change: Callable[[], None]
+
+
+class Mode(Enum):
+    """Enum per rappresentare le modalità di gioco."""
+
+    PC = "PC"
+    PVP = "PvP"
 
 
 class GUI:
@@ -16,22 +33,14 @@ class GUI:
 
     def __init__(
         self,
-        on_move: Callable[[int, int], None],
-        on_restart: Callable[[], None],
-        on_difficulty_change: Callable[[], None],
-        on_mode_change: Callable[[], None],
+        callbacks: GUICallbacksDict,
         difficulty: Difficulty = Difficulty.MEDIUM,
-        mode: str = "PC",
+        mode: Mode = Mode.PC,
     ):
         self.root = tk.Tk()
         self.root.title("Tris")
         self.buttons: List[List[tk.Button]] = []
-        self.callbacks: dict[str, Callable] = {
-            "on_move": on_move,
-            "on_restart": on_restart,
-            "on_difficulty_change": on_difficulty_change,
-            "on_mode_change": on_mode_change,
-        }
+        self.callbacks: GUICallbacksDict = callbacks
         self.difficulty = difficulty
         self.mode = mode
         self.status_var = tk.StringVar()
@@ -62,7 +71,7 @@ class GUI:
         """
         self.widgets["mode_button"] = tk.Button(
             self.root,
-            text=f"Modalità: {self.mode}",
+            text=f"Modalità: {self.mode.value}",
             font=("Arial", 12),
             command=self._on_mode_click,
         )
@@ -96,11 +105,11 @@ class GUI:
         if cb:
             cb()
 
-    def update_mode(self, mode: str) -> None:
+    def update_mode(self, mode: Mode) -> None:
         """Aggiorna il testo del pulsante della modalità."""
         btn = self.widgets.get("mode_button")
         if btn:
-            btn.config(text=f"Modalità: {mode}")
+            btn.config(text=f"Modalità: {mode.value}")
 
     def show_restart(self, show: bool = True):
         """Mostra o nasconde il pulsante di restart."""
