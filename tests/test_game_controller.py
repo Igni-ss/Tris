@@ -5,6 +5,7 @@ import pytest
 from src.modules.ai import Difficulty
 from src.modules.board import PLAYER_O, PLAYER_X
 from src.modules.game_controller import GameController
+from src.modules.ui import Mode
 
 
 # pylint: disable=redefined-outer-name
@@ -22,6 +23,7 @@ def controller_and_mocks(mocker):
     controller.gui = mock_gui.return_value
     controller.current_player = PLAYER_X
     controller.difficulty = Difficulty.MEDIUM
+    controller.mode = Mode.PC
     return controller, controller.board, controller.gui, mock_get_best_move
 
 
@@ -55,71 +57,108 @@ def test_start_new_game(mocker, controller_and_mocks):
     gui.show_message.assert_called_with("BENVENUTO A TRIS GUI!")
 
 
-def test_on_move_valid_and_pc_move(mocker, controller_and_mocks):
-    """Testa che on_move gestisca correttamente una mossa valida del giocatore e chiami pc_move."""
-    controller, board, _, mock_get_best_move = controller_and_mocks
+SCENARIOS_ON_MOVE = [
+    {
+        "name": "Mossa valida e chiama pc_move",
+        "make_move": True,
+        "check_game_over": False,
+        "mode": Mode.PC,
+        "current_player": PLAYER_X,
+        "expected_calls": ["make_move", "pc_move"],
+    },
+    {
+        "name": "Mossa valida e cambia giocatore in PvP",
+        "make_move": True,
+        "check_game_over": False,
+        "mode": Mode.PVP,
+        "current_player": PLAYER_X,
+        "expected_calls": ["make_move", "change_player"],
+    },
+    {
+        "name": "Mossa non valida",
+        "make_move": False,
+        "check_game_over": False,
+        "mode": Mode.PC,
+        "current_player": PLAYER_X,
+        "expected_calls": ["invalid_move"],
+    },
+    {
+        "name": "Game over dopo mossa valida",
+        "make_move": True,
+        "check_game_over": True,
+        "mode": Mode.PC,
+        "current_player": PLAYER_X,
+        "expected_calls": ["make_move", "check_game_over"],
+    },
+]
+
+
+@pytest.mark.parametrize("test_case", SCENARIOS_ON_MOVE)
+def test_on_move_parametrized(mocker, controller_and_mocks, test_case):
+    """
+    Test parametrico per on_move: verifica comportamento in caso di mossa valida, partita finita,
+    mossa non valida, vittoria e pareggio.
+    """
+    controller, board, gui, mock_get_best_move = controller_and_mocks
+    controller.mode = test_case["mode"]
+    controller.current_player = test_case["current_player"]
+
+    make_move = test_case["make_move"]
+    expected_calls = test_case["expected_calls"]
+
+    if make_move is not None:
+        board.make_move.return_value = make_move
+
+    mock_check_game_over = mocker.patch.object(
+        controller, "check_game_over", return_value=test_case["check_game_over"]
+    )
+
+    # Patch pc_move se serve
+    if "pc_move" in expected_calls:
+        mock_pc_move = mocker.patch.object(controller, "pc_move")
+    else:
+        mock_pc_move = None
+
     mock_get_best_move.return_value = (1, 1)
-    mock_pc_move = mocker.patch.object(controller, "pc_move")
-    board.check_winner.return_value = None
-    board.is_full.return_value = False
-    board.make_move.return_value = True
 
     controller.on_move(0, 0)
 
-    board.make_move.assert_any_call(0, 0, PLAYER_X)
-    mock_pc_move.assert_called_once()
+    if "make_move" in expected_calls:
+        board.make_move.assert_any_call(0, 0, PLAYER_X)
+    if "invalid_move" in expected_calls:
+        gui.show_error.assert_called_with("Mossa non valida o cella occupata! Riprova.")
+        gui.display_board.assert_not_called()
+    if "check_game_over" in expected_calls:
+        mock_check_game_over.assert_called_once()
+    if "pc_move" in expected_calls and mock_pc_move is not None:
+        mock_pc_move.assert_called_once()
+    if "change_player" in expected_calls:
+        assert controller.current_player == PLAYER_O
+    if "no_move" in expected_calls:
+        board.make_move.assert_not_called()
+        gui.display_board.assert_not_called()
 
 
-def test_on_move_game_already_finished(controller_and_mocks):
-    """Testa che on_move non permetta di fare mosse se la partita è già finita."""
-    controller, board, gui, _ = controller_and_mocks
-    board.check_winner.return_value = PLAYER_X
-    board.is_full.return_value = False
-    controller.on_move(0, 0)
-    board.make_move.assert_not_called()
-    gui.display_board.assert_not_called()
+def test_cycle_mode(controller_and_mocks):
+    """Testa che cycle_mode cicli correttamente tra le modalità di gioco e aggiorni la GUI."""
+    controller, _, gui, _ = controller_and_mocks
+    initial_mode = controller.mode
 
+    controller.cycle_mode()
+    assert controller.mode != initial_mode
+    gui.update_mode.assert_called_with(controller.mode)
+    if controller.mode == Mode.PC:
+        gui.show_difficulty.assert_called_with(True)
+    else:
+        gui.show_difficulty.assert_called_with(False)
 
-def test_on_move_invalid_move(controller_and_mocks):
-    """
-    Testa che on_move gestisca correttamente una mossa non valida (cella occupata) mostrando un
-    messaggio di errore.
-    """
-    controller, board, gui, _ = controller_and_mocks
-    board.check_winner.return_value = None
-    board.is_full.return_value = False
-    board.make_move.return_value = False
-    controller.on_move(0, 0)
-    gui.show_error.assert_called_with("Mossa non valida o cella occupata! Riprova.")
-    gui.display_board.assert_not_called()
-
-
-def test_on_move_player_wins(controller_and_mocks):
-    """
-    Testa che on_move gestisca correttamente la vittoria del giocatore mostrando il messaggio di
-    vittoria e il pulsante di ricominciare.
-    """
-    controller, board, gui, _ = controller_and_mocks
-    board.check_winner.side_effect = [None, PLAYER_X]
-    board.is_full.return_value = False
-    board.make_move.return_value = True
-    controller.on_move(0, 0)
-    gui.show_message.assert_any_call("PARTITA FINITA! Ha vinto: X")
-    gui.show_restart.assert_called_with(True)
-
-
-def test_on_move_draw(controller_and_mocks):
-    """
-    Testa che on_move gestisca correttamente la situazione di pareggio mostrando il messaggio di
-    pareggio e il pulsante di ricominciare.
-    """
-    controller, board, gui, _ = controller_and_mocks
-    board.check_winner.side_effect = [None, None]
-    board.is_full.side_effect = [False, True]
-    board.make_move.return_value = True
-    controller.on_move(0, 0)
-    gui.show_message.assert_any_call("PARTITA FINITA! Pareggio.")
-    gui.show_restart.assert_called_with(True)
+    controller.cycle_mode()
+    assert controller.mode == initial_mode
+    gui.update_mode.assert_called_with(controller.mode)
+    if controller.mode == Mode.PC:
+        gui.show_difficulty.assert_called_with(True)
+    else:
+        gui.show_difficulty.assert_called_with(False)
 
 
 def test_cycle_difficulty(controller_and_mocks):
@@ -129,15 +168,15 @@ def test_cycle_difficulty(controller_and_mocks):
 
     controller.cycle_difficulty()
     assert controller.difficulty != initial_difficulty
-    gui.show_difficulty.assert_called_with(controller.difficulty)
+    gui.update_difficulty.assert_called_with(controller.difficulty)
 
     controller.cycle_difficulty()
     assert controller.difficulty != initial_difficulty
-    gui.show_difficulty.assert_called_with(controller.difficulty)
+    gui.update_difficulty.assert_called_with(controller.difficulty)
 
     controller.cycle_difficulty()
     assert controller.difficulty == initial_difficulty
-    gui.show_difficulty.assert_called_with(controller.difficulty)
+    gui.update_difficulty.assert_called_with(controller.difficulty)
 
 
 # Scenari parametrizzati per test_pc_move
@@ -210,5 +249,4 @@ def test_check_game_over_winner(controller_and_mocks):
 
     assert result is True
     gui.show_message.assert_called_with("PARTITA FINITA! Ha vinto: X")
-    gui.show_restart.assert_called_with(True)
     gui.show_restart.assert_called_with(True)

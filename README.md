@@ -1,6 +1,6 @@
 # Tris
 
-Una semplice implementazione del gioco tris (tic-tac-toe) contro il computer, che utilizza l'algoritmo Minimax.
+Una semplice implementazione del gioco tris (tic-tac-toe) che permette di giocare PvP o contro il computer.
 
 ## Installazione
 
